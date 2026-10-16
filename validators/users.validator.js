@@ -1,6 +1,6 @@
 import { body } from 'express-validator';
 
-export const validarRegistroUsuario = [
+export const validardatosUsuario = [
   body('identification_number')
     .trim()
     .notEmpty().withMessage('El número de identificación es obligatorio.')
@@ -9,7 +9,7 @@ export const validarRegistroUsuario = [
   body('name')
     .trim()
     .notEmpty().withMessage('El nombre es obligatorio.')
-    .isLength({ max: 60 }).withMessage('El nombre no puede superar 60 caracteres.'),
+    .isLength({ max: 60 }).isLength({min: 3}).withMessage('El nombre no puede superar 60 caracteres ni ser menor a 3 caracaters.'),
 
   body('phone_number')
     .trim()
