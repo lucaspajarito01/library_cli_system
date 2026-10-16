@@ -22,7 +22,7 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "dev": "nodemon library_cli_system --quiet",
+    "dev": "nodemon server.js --quiet",
     "start": "node server.js"
   },
   "dependencies": {
