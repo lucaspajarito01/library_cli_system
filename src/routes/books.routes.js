@@ -1,0 +1,101 @@
+import { Router } from 'express';
+import pool from '../config/database.js';
+import { validardatosLibro, validarIdLibro } from '../validators/books.validator.js';
+import { validarResultados } from '../middlewares/validate.middleware.js';
+
+const BooksRouter = Router();
+
+// Consulta base con los datos legibles de cada libro.
+const SQL_LIBROS = `
+  SELECT b.book_id AS id, b.title, bc.category, e.editorial, a.author,
+         b.publication_date, b.price, i.quantity
+  FROM books b
+  JOIN book_category bc ON bc.id = b.id_category
+  LEFT JOIN editorials e ON e.id = b.id_editorial
+  JOIN authors a ON a.id = b.id_author
+  LEFT JOIN inventory i ON i.book_id = b.book_id`;
+
+// Devuelve el id si el valor ya existe; si no, lo crea.
+// Requiere que la columna tenga restricción UNIQUE.
+// tabla y columna son constantes internas, nunca datos del usuario.
+const obtenerOCrearId = async (conn, tabla, columna, valor) => {
+  const [result] = await conn.execute(
+    `INSERT INTO ${tabla} (${columna}) VALUES (?)
+     ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id)`,
+    [valor]
+  );
+  return result.insertId;
+};
+
+// Listar todos los libros.
+BooksRouter.get('/', async (req, res, next) => {
+  try {
+    const [rows] = await pool.execute(`${SQL_LIBROS} ORDER BY b.book_id`);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'No existen libros registrados.' });
+    }
+
+    return res.json(rows);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Obtener libro por ID.
+BooksRouter.get('/:id', validarIdLibro, validarResultados, async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const [rows] = await pool.execute(`${SQL_LIBROS} WHERE b.book_id = ?`, [id]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Libro no existente.' });
+    }
+
+    return res.json(rows[0]);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Registrar libro (categoría, editorial y autor se crean si no existen).
+BooksRouter.post('/', validardatosLibro, validarResultados, async (req, res, next) => {
+  let conn;
+  try {
+    const { title, category, editorial, author, publication_date, price, quantity } = req.body;
+
+    conn = await pool.getConnection();
+    await conn.beginTransaction();
+
+    const idCategoria = await obtenerOCrearId(conn, 'book_category', 'category', category);
+    const idEditorial = editorial
+      ? await obtenerOCrearId(conn, 'editorials', 'editorial', editorial)
+      : null;
+    const idAutor = await obtenerOCrearId(conn, 'authors', 'author', author);
+
+    const [libro] = await conn.execute(
+      `INSERT INTO books (title, id_category, id_editorial, id_author, publication_date, price)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [title, idCategoria, idEditorial, idAutor, publication_date || null, price]
+    );
+
+    await conn.execute(
+      'INSERT INTO inventory (book_id, quantity) VALUES (?, ?)',
+      [libro.insertId, quantity ?? 0]
+    );
+
+    await conn.commit();
+
+    return res.status(201).json({
+      id: libro.insertId,
+      mensaje: 'Libro registrado correctamente.',
+    });
+  } catch (error) {
+    if (conn) await conn.rollback();
+    next(error);
+  } finally {
+    if (conn) conn.release();
+  }
+});
+
+export default BooksRouter;

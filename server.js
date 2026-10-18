@@ -1,6 +1,8 @@
 import 'dotenv/config';
 import express from 'express';
 import usersRouter from './src/routes/users.routes.js';
+import BooksRouter from './src/routes/books.routes.js';
+
 
 const app = express();
 
@@ -10,6 +12,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/users', usersRouter);
+app.use('/books', BooksRouter);
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Ruta no encontrada' });
