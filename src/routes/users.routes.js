@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import pool from '../config/database.js';
 import UserCreate from '../dtos/user.create.dto.js';
+import UserGet from '../dtos/user.get.dto.js';
 import {  validardatosUsuario } from '../validators/users.validator.js';
 import { validarResultados } from '../middlewares/validate.middleware.js';
 
@@ -13,8 +14,8 @@ UsersRouter.get('/', async (req, res, next) => {
     if (rows.length === 0) {
       return res.status(404).json({ error: 'No existen clientes registrados.' });
     }
-
-    return res.json(rows);
+    const usuarios = rows.map((row) => new UserGet(row).data);
+    return res.json(usuarios);
   } catch (error) {
     next(error);
   }
@@ -29,8 +30,8 @@ UsersRouter.get('/:id', async (req, res, next) => {
     if (rows.length === 0) {
       return res.status(404).json({ error: 'Usuario no existente.' });
     }
-
-    return res.json(rows[0]);
+    const usuario = new UserGet(rows[0])
+    res.json(usuario.data);
   } catch (error) {
     next(error);
   }
