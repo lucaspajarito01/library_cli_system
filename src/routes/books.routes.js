@@ -15,9 +15,6 @@ const SQL_LIBROS = `
   JOIN authors a ON a.id = b.id_author
   LEFT JOIN inventory i ON i.book_id = b.book_id`;
 
-// Devuelve el id si el valor ya existe; si no, lo crea.
-// Requiere que la columna tenga restricción UNIQUE.
-// tabla y columna son constantes internas, nunca datos del usuario.
 const obtenerOCrearId = async (conn, tabla, columna, valor) => {
   const [result] = await conn.execute(
     `INSERT INTO ${tabla} (${columna}) VALUES (?)
