@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import pool from '../config/database.js';
+import UserCreate from '../dtos/user.create.dto.js';
 import {  validardatosUsuario } from '../validators/users.validator.js';
 import { validarResultados } from '../middlewares/validate.middleware.js';
 
@@ -38,15 +39,12 @@ UsersRouter.get('/:id', async (req, res, next) => {
 // Registrar cliente.
 UsersRouter.post('/', validardatosUsuario, validarResultados, async (req, res, next) => {
   try {
-    const { identification_number, name, phone_number, address, email } = req.body;
 
-    const role = 'Usuario';
-
+    const usuario = new UserCreate({...req.body})
     const [result] = await pool.execute(
       'INSERT INTO clients (identification_number, name, phone_number, address, email, role) VALUES (?, ?, ?, ?, ?, ?)',
-      [identification_number, name, phone_number, address, email, role]
+      [usuario.identificacion, usuario.nombre, usuario.numero_telefonico, usuario.direccion, usuario.correo, usuario.rol]
     );
-
     return res.status(201).json({
       id: result.insertId,
       mensaje: 'Usuario registrado correctamente',
