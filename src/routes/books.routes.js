@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import pool from '../config/database.js';
+import BookAdd from '../dtos/books.add.dto.js';
 import { validardatosLibro, validarIdLibro } from '../validators/books.validator.js';
 import { validarResultados } from '../middlewares/validate.middleware.js';
 
@@ -59,29 +60,29 @@ BooksRouter.get('/:id', validarIdLibro, validarResultados, async (req, res, next
 BooksRouter.post('/', validardatosLibro, validarResultados, async (req, res, next) => {
   let conn;
   try {
-    const { title, category, editorial, author, publication_date, price, quantity } = req.body;
+    const libroDto = new BookAdd(req.body);
 
     conn = await pool.getConnection();
     await conn.beginTransaction();
 
-    const idCategoria = await obtenerOCrearId(conn, 'book_category', 'category', category);
-    const idEditorial = editorial
-      ? await obtenerOCrearId(conn, 'editorials', 'editorial', editorial)
+    const idCategoria = await obtenerOCrearId(conn, 'book_category', 'category', libroDto.categoria);
+    const idEditorial = libroDto.editorial
+      ? await obtenerOCrearId(conn, 'editorials', 'editorial', libroDto.editorial)
       : null;
-    const idAutor = await obtenerOCrearId(conn, 'authors', 'author', author);
+    const idAutor = await obtenerOCrearId(conn, 'authors', 'author', libroDto.autor);
 
     const [libro] = await conn.execute(
       `INSERT INTO books (title, id_category, id_editorial, id_author, publication_date, price)
        VALUES (?, ?, ?, ?, ?, ?)`,
-      [title, idCategoria, idEditorial, idAutor, publication_date || null, price]
+      [libroDto.titulo, idCategoria, idEditorial, idAutor, libroDto.fecha_p, libroDto.precio]
     );
 
     await conn.execute(
       'INSERT INTO inventory (book_id, quantity) VALUES (?, ?)',
-      [libro.insertId, quantity ?? 0]
+      [libro.insertId, libroDto.cantidad]
     );
 
-    await conn.commit();
+    await conn.commit(); 
 
     return res.status(201).json({
       id: libro.insertId,
