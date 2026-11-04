@@ -35,7 +35,8 @@ BooksRouter.get('/', async (req, res, next) => {
       return res.status(404).json({ error: 'No existen libros registrados.' });
     }
 
-    return res.json(rows);
+    const libros = rows.map((row) => new GetBook(row).data);
+    return res.json(libros);
   } catch (error) {
     next(error);
   }
@@ -44,17 +45,15 @@ BooksRouter.get('/', async (req, res, next) => {
 // Obtener libro por ID.
 BooksRouter.get('/:id', validarIdLibro, validarResultados, async (req, res, next) => {
   try {
-
     const { id } = req.params;
     const [rows] = await pool.execute(`${SQL_LIBROS} WHERE b.book_id = ?`, [id]);
 
-if (rows.length===0) {
+    if (rows.length === 0) {
       return res.status(404).json({ error: 'Libro no existente.' });
     }
 
-    const libroDto = new GetBook(rows[0])
-    res.json(libroDto.data);
-    return res.json(rows[0]);
+    const libroDto = new GetBook(rows[0]);
+    return res.json(libroDto.data);
   } catch (error) {
     next(error);
   }
