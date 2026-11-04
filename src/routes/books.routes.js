@@ -10,7 +10,7 @@ const BooksRouter = Router();
 // Consulta base con los datos legibles de cada libro.
 const SQL_LIBROS = `
   SELECT b.book_id AS id, b.title, bc.category, e.editorial, a.author,
-         b.publication_date, b.price, i.quantity
+         b.publication_date, b.price, i.quantity, b.activo
   FROM books b
   JOIN book_category bc ON bc.id = b.id_category
   LEFT JOIN editorials e ON e.id = b.id_editorial
@@ -126,6 +126,5 @@ BooksRouter.put('/:id', validardatosLibro, validarResultados, async (req, res, n
     next(error);
   }
 });
-
 
 export default BooksRouter;

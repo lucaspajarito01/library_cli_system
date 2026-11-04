@@ -6,7 +6,8 @@ export default class GetBook {
   #author;
   #publicationDate;
   #price;
-  #quantity;
+  #quantity
+  #activo;
 
   constructor(data) {
     this.#id = data.id;
@@ -17,6 +18,7 @@ export default class GetBook {
     this.#publicationDate = data.publication_date;
     this.#price = data.price;
     this.#quantity = data.quantity;
+    this.#activo=data.activo;
   }
 
   set id(id) { this.#id = id; }
@@ -27,6 +29,8 @@ export default class GetBook {
   set fecha_p(publicationDate) { this.#publicationDate = publicationDate; }
   set precio(price) { this.#price = price; }
   set cantidad(quantity) { this.#quantity = quantity; }
+  set activo(activo){this.#activo = activo;}
+
 
   get id() { return this.#id; }
   get titulo() { return this.#title; }
@@ -36,6 +40,7 @@ export default class GetBook {
   get fecha_p() { return this.#publicationDate; }
   get precio() { return this.#price; }
   get cantidad() { return this.#quantity; }
+  get activo() {return this.#activo;}
 
   get data() {
     return {
@@ -46,7 +51,8 @@ export default class GetBook {
       autor: this.#author,
       fecha_de_publicacion: this.#publicationDate,
       precio: this.#price,
-      cantidad: this.#quantity
+      cantidad: this.#quantity,
+      activo: this.#activo
     };
   }
 }
