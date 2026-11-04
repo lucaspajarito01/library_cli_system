@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import pool from '../config/database.js';
 import BookAdd from '../dtos/books.add.dto.js';
+import GetBook from '../dtos/book.get.dto.js'
 import { validardatosLibro, validarIdLibro } from '../validators/books.validator.js';
 import { validarResultados } from '../middlewares/validate.middleware.js';
 
@@ -43,13 +44,16 @@ BooksRouter.get('/', async (req, res, next) => {
 // Obtener libro por ID.
 BooksRouter.get('/:id', validarIdLibro, validarResultados, async (req, res, next) => {
   try {
+
     const { id } = req.params;
     const [rows] = await pool.execute(`${SQL_LIBROS} WHERE b.book_id = ?`, [id]);
 
-    if (rows.length === 0) {
+if (rows.length===0) {
       return res.status(404).json({ error: 'Libro no existente.' });
     }
 
+    const libroDto = new GetBook(rows[0])
+    res.json(libroDto.data);
     return res.json(rows[0]);
   } catch (error) {
     next(error);
