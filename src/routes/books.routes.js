@@ -99,4 +99,33 @@ BooksRouter.post('/', validardatosLibro, validarResultados, async (req, res, nex
   }
 });
 
+//Actualizar libro.
+BooksRouter.put('/:id', validardatosLibro, validarResultados, async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const {title,
+           id_category,
+           id_editorial,
+           id_author,
+           publication_date,
+           price} = req.body;
+
+    
+
+    const [result] = await pool.execute(
+      'UPDATE books SET title = IFNULL(?, title), id_category = IFNULL(?, id_category), id_editorial = IFNULL(?, id_editorial), id_author = IFNULL(?, id_author), publication_date = IFNULL(?, publication_date), price = IFNULL(?, price) WHERE book_id = ?',
+      [title || null, id_category || null, id_editorial || null, id_author || null, publication_date || null, price || null, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Libro no existente.' });
+    }
+
+    return res.json({ mensaje: 'Libro actualizado correctamente.' });
+  } catch (error) {
+    next(error);
+  }
+});
+
+
 export default BooksRouter;
