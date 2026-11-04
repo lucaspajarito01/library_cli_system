@@ -127,4 +127,21 @@ BooksRouter.put('/:id', validardatosLibro, validarResultados, async (req, res, n
   }
 });
 
-export default BooksRouter;
+//Eliminar libro
+BooksRouter.delete('/:id', async (req, res, next)=>{
+  try{
+    const {id}= req.params;
+    const [result]= await pool.execute('UPDATE books SET activo = FALSE WHERE book_id = ?',[id]);
+
+    if (result.affectedRows === 0){
+      return res.status.json({ error: `El libro con ${id}, no existe`});
+    }
+    return res.json({ mensaje: `Libro con ${id}, ha sido eliminado correctamente.`})
+    
+  }catch(error){
+    next(error);
+  }
+})
+
+
+export default BooksRouter
