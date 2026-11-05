@@ -1,6 +1,6 @@
 {
   "name": "library_cli_system",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Sistema para librerias modernas",
   "keywords": [
     "NodeJS",
@@ -26,9 +26,12 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "cookie-parser": "^1.4.7",
     "express": "^5.3.0",
     "express-validator": "^7.3.2",
-    "mysql2": "^3.24.6"
+    "jsonwebtoken": "^9.0.3",
+    "mysql2": "^3.24.6",
+    "semver": "^7.8.6"
   },
   "devDependencies": {
     "dotenv": "^18.0.8",

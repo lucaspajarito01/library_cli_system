@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Library CLI System · Gestión Corporativa de Librería</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <!-- Notificación flotante -->
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- ================= VISTA PÚBLICA DE PRESENTACIÓN ================= -->
+  <div id="view-public">
+    <header class="topbar">
+      <div class="container topbar-inner">
+        <div class="brand">
+          <span class="brand-mark">LC</span>
+          <div>
+            <strong>Library Corp</strong>
+            <small>Sistema de Gestión Bibliográfica</small>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <span class="version-badge" id="public-version">v1.1.0</span>
+          <button class="btn btn-primary" onclick="mostrarVista('login')">Acceso Administrador</button>
+        </div>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <span class="eyebrow">PLATAFORMA CORPORATIVA · EDICIÓN EMPRESARIAL</span>
+          <h1>Control integral de inventario, préstamos y ventas en tiempo real</h1>
+          <p>
+            Soluciones modernas para la administración de acervos bibliográficos. Sincronización automática
+            de existencias al registrar libros, préstamos o ventas, respaldada por autenticación JWT,
+            cookies seguras HttpOnly y control de versiones SemVer.
+          </p>
+          <div class="hero-buttons">
+            <button class="btn btn-primary" onclick="mostrarVista('login')">Ingresar al Panel Administrativo</button>
+            <a href="#catalogo-publico" class="btn btn-outline-light">Explorar Catálogo Público</a>
+          </div>
+        </div>
+        <div class="hero-stats">
+          <div class="stat-card">
+            <span class="stat-label">Títulos Activos</span>
+            <strong class="stat-value" id="stat-titulos">0</strong>
+            <small>Catálogo verificado</small>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Unidades en Stock</span>
+            <strong class="stat-value" id="stat-unidades">0</strong>
+            <small>Disponibilidad inmediata</small>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Seguridad Backend</span>
+            <strong class="stat-value">JWT + Cookies</strong>
+            <small>Sesión exclusiva Administrador</small>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Estándar API</span>
+            <strong class="stat-value" id="stat-semver">SemVer 1.1.0</strong>
+            <small>Control de compatibilidad</small>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="features container">
+      <div class="feature-item">
+        <h3>Inventario Automatizado</h3>
+        <p>El registro inicial de cada libro define su stock de forma inmediata. Cada préstamo o venta descuenta unidades automáticamente y las devoluciones reponen existencias.</p>
+      </div>
+      <div class="feature-item">
+        <h3>Trazabilidad de Préstamos y Ventas</h3>
+        <p>Gestión transaccional ACID en MySQL que garantiza la integridad del inventario ante compras por mostrador, clientes registrados y fechas de devolución.</p>
+      </div>
+      <div class="feature-item">
+        <h3>Arquitectura Empresarial</h3>
+        <p>Protección de rutas mediante JSON Web Tokens almacenados en cookies HttpOnly y validación estricta de encabezados con Semantic Versioning (SemVer).</p>
+      </div>
+    </section>
+
+    <section id="catalogo-publico" class="container section-block">
+      <div class="section-header">
+        <div>
+          <h2>Catálogo Bibliográfico Disponible</h2>
+          <p class="text-muted">Consulta pública en tiempo real de las obras registradas en nuestra librería.</p>
+        </div>
+        <button class="btn btn-secondary" onclick="cargarCatalogoPublico()">Actualizar Catálogo</button>
+      </div>
+      <div id="public-books-grid" class="catalog-grid"></div>
+    </section>
+
+    <footer class="footer">
+      <div class="container footer-inner">
+        <span>© 2026 Library CLI System · Interfaz Corporativa</span>
+        <span>Arquitectura Node.js · Express · MySQL · JWT · SemVer</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ================= VISTA LOGIN ADMINISTRADOR ================= -->
+  <div id="view-login" class="login-wrapper hidden">
+    <div class="login-card">
+      <div class="login-header">
+        <span class="brand-mark">LC</span>
+        <h2>Portal de Administración</h2>
+        <p class="text-muted">Acceso exclusivo para personal con rol Administrador</p>
+      </div>
+      <form id="form-login">
+        <div class="form-group">
+          <label>Correo Electrónico Corporativo</label>
+          <input type="email" id="login-correo" required placeholder="admin@libreria.com" />
+        </div>
+        <div class="form-group">
+          <label>Número de Identificación (Clave)</label>
+          <input type="password" id="login-identificacion" required placeholder="••••••••••" />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Iniciar Sesión Segura</button>
+      </form>
+      <div class="demo-credentials">
+        <span>Credenciales de prueba: <strong>admin@libreria.com</strong> / <strong>1000000001</strong></span>
+        <button type="button" class="btn-link" onclick="autocompletarDemo()">Autocompletar</button>
+      </div>
+      <div class="login-footer">
+        <button type="button" class="btn btn-secondary btn-block" onclick="mostrarVista('public')">
+          ← Volver a la Presentación Pública
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= VISTA PANEL ADMINISTRADOR ================= -->
+  <div id="view-admin" class="hidden">
+    <header class="topbar admin-topbar">
+      <div class="container topbar-inner">
+        <div class="brand">
+          <span class="brand-mark">LC</span>
+          <div>
+            <strong>Panel Ejecutivo de Administración</strong>
+            <small id="admin-user-info">Administrador</small>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <span class="version-badge" id="admin-version">v1.1.0</span>
+          <button class="btn btn-outline-light" onclick="mostrarVista('public')">Ver Presentación</button>
+          <button class="btn btn-danger" onclick="cerrarSesion()">Cerrar Sesión</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="container admin-main">
+      <!-- Navegación de pestañas -->
+      <nav class="tabs">
+        <button class="tab active" data-tab="tab-books" onclick="cambiarTab('tab-books')">Libros e Inventario</button>
+        <button class="tab" data-tab="tab-loans" onclick="cambiarTab('tab-loans')">Registro de Préstamos</button>
+        <button class="tab" data-tab="tab-sales" onclick="cambiarTab('tab-sales')">Registro de Ventas</button>
+        <button class="tab" data-tab="tab-users" onclick="cambiarTab('tab-users')">Clientes y Usuarios</button>
+      </nav>
+
+      <!-- MÓDULO 1: LIBROS E INVENTARIO -->
+      <section id="tab-books" class="tab-panel">
+        <div class="panel-grid">
+          <div class="card">
+            <h3 id="book-form-title">Registrar Libro e Inventario</h3>
+            <form id="form-book">
+              <input type="hidden" id="book-id" />
+              <div class="form-group">
+                <label>Título del Libro</label>
+                <input type="text" id="book-titulo" maxlength="40" required placeholder="Ej. Clean Architecture" />
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Categoría</label>
+                  <input type="text" id="book-categoria" maxlength="20" required placeholder="Ej. Ingeniería" />
+                </div>
+                <div class="form-group">
+                  <label>Editorial</label>
+                  <input type="text" id="book-editorial" maxlength="30" placeholder="Ej. Prentice Hall" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Autor</label>
+                <input type="text" id="book-autor" maxlength="60" required placeholder="Ej. Robert C. Martin" />
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Fecha Publicación</label>
+                  <input type="date" id="book-fecha" />
+                </div>
+                <div class="form-group">
+                  <label>Precio Unitario ($)</label>
+                  <input type="number" step="0.01" min="0" id="book-precio" required placeholder="45.00" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Cantidad de Libros (Stock en Inventario)</label>
+                <input type="number" min="0" id="book-cantidad" required placeholder="Ej. 15" />
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Guardar Libro</button>
+                <button type="button" class="btn btn-secondary" onclick="limpiarFormLibro()">Limpiar</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Inventario General de Libros</h3>
+              <span class="text-muted">El stock se ajusta automáticamente en préstamos y ventas</span>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Título / Autor</th>
+                    <th>Categoría</th>
+                    <th>Precio</th>
+                    <th>Cantidad (Stock)</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-books"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MÓDULO 2: PRÉSTAMOS -->
+      <section id="tab-loans" class="tab-panel hidden">
+        <div class="panel-grid">
+          <div class="card">
+            <h3>Registrar Préstamo</h3>
+            <p class="help-text">Al prestar un libro, se descuenta 1 unidad del inventario automáticamente.</p>
+            <form id="form-loan">
+              <div class="form-group">
+                <label>Libro a Prestar</label>
+                <select id="loan-libro" required></select>
+              </div>
+              <div class="form-group">
+                <label>Cliente Solicitante</label>
+                <select id="loan-cliente" required></select>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Fecha Préstamo</label>
+                  <input type="date" id="loan-fecha-prestamo" required />
+                </div>
+                <div class="form-group">
+                  <label>Fecha Devolución Estimada</label>
+                  <input type="date" id="loan-fecha-estimada" required />
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary btn-block">Registrar Préstamo</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Control de Préstamos</h3>
+              <span class="text-muted">Marcar un préstamo como devuelto reintegra 1 unidad al stock</span>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Libro</th>
+                    <th>Cliente</th>
+                    <th>Préstamo</th>
+                    <th>Límite</th>
+                    <th>Devolución</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-loans"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MÓDULO 3: VENTAS -->
+      <section id="tab-sales" class="tab-panel hidden">
+        <div class="panel-grid">
+          <div class="card">
+            <h3 id="sale-form-title">Registrar Venta</h3>
+            <p class="help-text">Descuenta automáticamente los ejemplares vendidos y calcula el importe total.</p>
+            <form id="form-sale">
+              <input type="hidden" id="sale-id" />
+              <div class="form-group">
+                <label>Libro</label>
+                <select id="sale-libro" required></select>
+              </div>
+              <div class="form-group">
+                <label>Cliente (Opcional)</label>
+                <select id="sale-cliente"></select>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Cantidad a Vender</label>
+                  <input type="number" min="1" id="sale-cantidad" value="1" required />
+                </div>
+                <div class="form-group">
+                  <label>Fecha de Venta</label>
+                  <input type="date" id="sale-fecha" required />
+                </div>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Guardar Venta</button>
+                <button type="button" class="btn btn-secondary" onclick="limpiarFormVenta()">Cancelar</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Historial de Ventas</h3>
+              <span class="text-muted">Cálculo automático según precio unitario e inventario</span>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Libro</th>
+                    <th>Cliente</th>
+                    <th>Cant.</th>
+                    <th>Precio Unit.</th>
+                    <th>Total</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-sales"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MÓDULO 4: CLIENTES / USUARIOS -->
+      <section id="tab-users" class="tab-panel hidden">
+        <div class="panel-grid">
+          <div class="card">
+            <h3 id="user-form-title">Registrar Usuario / Cliente</h3>
+            <form id="form-user">
+              <input type="hidden" id="user-id" />
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Identificación</label>
+                  <input type="text" id="user-identificacion" maxlength="13" required placeholder="Ej. 1002345678" />
+                </div>
+                <div class="form-group">
+                  <label>Teléfono (máx. 9 dígitos)</label>
+                  <input type="text" id="user-telefono" maxlength="9" required placeholder="300123456" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Nombre Completo</label>
+                <input type="text" id="user-nombre" maxlength="60" required placeholder="Nombre y Apellido" />
+              </div>
+              <div class="form-group">
+                <label>Correo Electrónico</label>
+                <input type="email" id="user-correo" maxlength="120" required placeholder="usuario@dominio.com" />
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Dirección</label>
+                  <input type="text" id="user-direccion" maxlength="120" required placeholder="Av. Principal #10-20" />
+                </div>
+                <div class="form-group">
+                  <label>Rol en el Sistema</label>
+                  <select id="user-rol">
+                    <option value="Usuario">Usuario (Cliente)</option>
+                    <option value="Administrador">Administrador</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Guardar Usuario</button>
+                <button type="button" class="btn btn-secondary" onclick="limpiarFormUsuario()">Limpiar</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Directorio de Clientes y Administradores</h3>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Identificación</th>
+                    <th>Nombre</th>
+                    <th>Correo / Teléfono</th>
+                    <th>Rol</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-users"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
+
