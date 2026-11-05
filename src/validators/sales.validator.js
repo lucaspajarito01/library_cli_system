@@ -55,3 +55,4 @@ export const validarIdVenta = [
   param('id')
     .isInt({ min: 1 }).withMessage('El id de la venta debe ser un entero positivo.')
 ];
+

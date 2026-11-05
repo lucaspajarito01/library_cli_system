@@ -40,3 +40,4 @@ export const obtenerInfoVersion = (req, res) => {
     patch: parsed?.patch ?? 0,
   });
 };
+

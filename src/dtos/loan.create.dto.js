@@ -19,3 +19,4 @@ export default class LoanCreate {
   get fecha_devolucion_estimada() { return this.#return_attempt; }
   get fecha_devolucion() { return this.#return_date; }
 }
+

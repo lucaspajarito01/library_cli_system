@@ -234,3 +234,4 @@ LoansRouter.delete('/:id', validarIdPrestamo, validarResultados, async (req, res
 });
 
 export default LoansRouter;
+

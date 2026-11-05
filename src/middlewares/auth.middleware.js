@@ -35,3 +35,4 @@ export const verificarAdmin = (req, res, next) => {
     });
   }
 };
+

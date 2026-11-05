@@ -242,3 +242,4 @@ SalesRouter.delete('/:id', validarIdVenta, validarResultados, async (req, res, n
 });
 
 export default SalesRouter;
+

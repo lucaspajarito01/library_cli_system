@@ -55,3 +55,4 @@ export const validarIdPrestamo = [
   param('id')
     .isInt({ min: 1 }).withMessage('El id del préstamo debe ser un entero positivo.')
 ];
+

@@ -17,3 +17,4 @@ export default class SaleCreate {
   get cantidad() { return this.#quantity; }
   get fecha_compra() { return this.#purchase_date; }
 }
+

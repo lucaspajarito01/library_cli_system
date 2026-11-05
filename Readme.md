@@ -44,3 +44,4 @@ Al ejecutar `docs/sql/schema.sql`, se crea automáticamente el usuario administr
 | `GET/POST/PUT/DELETE` | `/loans` | Admin | CRUD de préstamos con ajuste automático de stock |
 | `GET/POST/PUT/DELETE` | `/sales` | Admin | CRUD de ventas con descuento automático de stock y cálculo de total |
 | `GET/POST/PUT/DELETE` | `/users` | Admin | CRUD de clientes y administradores |
+
